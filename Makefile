@@ -2,7 +2,7 @@ NAME	= fdf
 
 LIBFT = libft/
 GNL   = get_next_line/
-MLX = minilibx_macos/
+MLX = minilibx_linux/
 
 LIBFT_A = $(addprefix $(LIBFT), libft.a)
 MLX_A   = $(addprefix $(GNL), libmlx.a)
@@ -21,11 +21,10 @@ OBJECTS = $(SRCS:.c=.o)
 all: $(NAME)
 
 $(NAME): $(OBJECTS) $(LIBFT_A) $(LIBMLX_A)
-	$(CC) $(CFLAGS) -o  $(OBJECTS) -L$(LIBFT) -lgnl -L$(MLX) -lmlx -lm -o $(NAME) framework OpenGL -framework AppKit
-
+	$(CC) $(CFLAGS) -o  $(OBJECTS) $(LIBFT) $(MLX) -lX11 -lXext $(NAME)
 $(LIBFT_A): $(MAKE) -s -C $(LIBFT)
 
-$(MLX_A): $(MAKE) -s -C $(MLX))
+$(MLX_A): $(MAKE) -s -C $(MLX)
 
 clean:
 	rm -f $(OBJECTS)
