@@ -7,17 +7,23 @@
 # include <fcntl.h>
 # include "get_next_line/get_next_line.h"
 # include "libft/libft.h"
-# include "minilibx_macos/mlx.h"
+# include "minilibx-linux/mlx.h"
 //# include <X11/X.h>
 //# include <X11/keysym.h>
 
+typedef struct s_point{
+	double	x;
+	double	y;
+	double	z;
+}			t_point;
 
-typedef struct s_map{
-	int 			x;
-	int 			y;
-	int             z;
-	struct s_map   *next;
-
-}					t_map;
+typedef struct	s_data {
+	void	*img;
+	char	*addr;
+	int		bits_per_pixel;
+	int		line_length;
+	int		endian;
+	t_point	*map;
+}				t_data;
 
 #endif
