@@ -6,7 +6,7 @@
 /*   By: smarty <smarty@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/02 17:31:23 by smarty            #+#    #+#             */
-/*   Updated: 2023/12/04 00:28:48 by smarty           ###   ########.fr       */
+/*   Updated: 2023/12/04 20:15:21 by smarty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,18 +70,17 @@ int	len_map(char ***tab)
 
 char	***create_map(t_data *map, int fd)
 {
+	//t_point	*tmp;
 	char	***tab;
 	int		x;
 	int		y;
 	int		i;
-	t_point	*tmp;
-
 	
 	y = 0;
 	i = 0;
 	tab = split_map(fd);
 	i = len_map(tab);
-	tmp = malloc(sizeof(t_point));
+	//tmp = malloc(sizeof(t_point));
 	map->map = malloc(sizeof(t_point) * i);
 	i = 0;
 	while(tab[y])
@@ -105,6 +104,29 @@ void	ft_mlx_pixel_put(t_data *data, int x, int y, int color)
 	char	*dest;
 	dest = data->addr + (y * data->line_length + x * (data->bits_per_pixel / 8));
 	*(unsigned int *)dest = color;
+}
+void	draw_line(t_data *map, char ***tab)
+{
+	int	propor;
+	int	len;
+	int	i;
+	int	y;
+	int offset;
+	
+	offset = 100;
+	i = 0;
+	y = 0;
+	len = len_map(tab);
+	propor = (map->map[i].x - (map->map[i + 1].x)) / (map->map[i].y - (map->map[i + 1].y));
+	while (i < len)
+	{
+		while ((map->map[i].x * 40) + y < (map->map[i + 1].x * 40))
+		{
+			ft_mlx_pixel_put(map, (map->map[i].x * 40 + map->map[i].y * 10 + offset) + y, (map->map[i].y * 20 + offset) - (map->map[i].z * 10) + (y / propor), 0x00AA00FF);
+			y++;
+		}
+		i++;
+	}
 }
 
 void draw_point(t_data *map, char ***tab)
@@ -166,6 +188,7 @@ void	create_win(int fd)
 	mlx_loop(mlx_ptr);
 	
 }
+
 
 int main()
 {
