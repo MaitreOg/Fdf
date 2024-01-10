@@ -13,7 +13,7 @@ CC = cc
 
 CFLAGS = -Wall -Wextra -Werror -g
 
-SRCS = fdf.c get_next_line/get_next_line.c get_next_line/get_next_line_utils.c 
+SRCS = fdf.c draw.c key_hook.c get_next_line/get_next_line.c get_next_line/get_next_line_utils.c 
 
 OBJECTS = $(SRCS:.c=.o)
 

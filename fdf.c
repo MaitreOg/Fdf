@@ -6,7 +6,7 @@
 /*   By: smarty <smarty@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/02 17:31:23 by smarty            #+#    #+#             */
-/*   Updated: 2023/12/04 20:15:21 by smarty           ###   ########.fr       */
+/*   Updated: 2024/01/10 16:58:59 by smarty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,19 +31,24 @@ int count_y(void)
 char ***split_map(int fd)
 {
 	char ***tab;
-	char **line;
+	char **newline;
+	char *line;
 	int i;
 
 	i = 0;
 	tab = malloc(sizeof(char **) * (count_y() + 1));
-	line = ft_split(get_next_line(fd), ' ');
+	line = get_next_line(fd);
 	while (line)
 	{
-		tab[i] = line;
+		newline = ft_split(line, ' ');
+		tab[i] = newline;
+		free(line);
 		i++;
-		line = ft_split(get_next_line(fd), ' ');
+		line = get_next_line(fd);
+		
 	}
 	tab[i] = 0;
+	
 	return (tab);
 }
 
@@ -96,104 +101,76 @@ char	***create_map(t_data *map, int fd)
 		}
 		y++;
 	}
+	map->nbrline = y - 1;
+	map->lenstruct = i - 1;
 	return(tab);
 }
 
-void	ft_mlx_pixel_put(t_data *data, int x, int y, int color)
-{
-	char	*dest;
-	dest = data->addr + (y * data->line_length + x * (data->bits_per_pixel / 8));
-	*(unsigned int *)dest = color;
-}
-void	draw_line(t_data *map, char ***tab)
-{
-	int	propor;
-	int	len;
-	int	i;
-	int	y;
-	int offset;
-	
-	offset = 100;
-	i = 0;
-	y = 0;
-	len = len_map(tab);
-	propor = (map->map[i].x - (map->map[i + 1].x)) / (map->map[i].y - (map->map[i + 1].y));
-	while (i < len)
-	{
-		while ((map->map[i].x * 40) + y < (map->map[i + 1].x * 40))
-		{
-			ft_mlx_pixel_put(map, (map->map[i].x * 40 + map->map[i].y * 10 + offset) + y, (map->map[i].y * 20 + offset) - (map->map[i].z * 10) + (y / propor), 0x00AA00FF);
-			y++;
-		}
-		i++;
-	}
-}
-
-void draw_point(t_data *map, char ***tab)
+/*void	recovery(t_data *map, int mul)
 {
 	int i;
-	int	len;
-	int offset;
 
 	i = 0;
-	offset = 100;
-	len = len_map(tab);
-	while (i < len)
+	while (i < map->len)
 	{
-		if (map->map[i].z == 0)
-			ft_mlx_pixel_put(map, (map->map[i].x * 40 + map->map[i].y * 10 + offset), (map->map[i].y * 20 + offset - (map->map[i].z * 10)), 0x00AA00FF);
-		else
-			ft_mlx_pixel_put(map, (map->map[i].x * 40 + map->map[i].y * 10 + offset), (map->map[i].y * 20 + offset - (map->map[i].z * 10)), 0x0000FF55);
+		draw_line_y(map, i, 0xFF000000, mul);
+		draw_line_x(map, i, 0xFF000000, mul);
 		i++;
 	}
-	
+}*/
 
-}
-
-
-
-int	key_hook(int keycode, t_data *img)
+void	free_tab(char ***tab)
 {
-	(void)img;
-	printf("%d\n", keycode);
-	return (0);
+	int i;
+	int	y;
+
+	i = 0;
+	while(tab[i])
+	{
+		y = 0;
+		while(tab[i][y])
+		{
+			free(tab[i][y]);
+			y++;
+		}
+		free (tab[i]);
+		i++;
+	}
+	free(tab);
 }
 void	create_win(int fd)
 {
-	void	*mlx_ptr;
-	void	*win_ptr;
 	char	***tab;
 	t_data	*img;
+	int		color;
 
+	color = 0x00FFFFFF;
 	img = malloc(sizeof(t_data));
-	mlx_ptr = mlx_init();
-	win_ptr = mlx_new_window(mlx_ptr, 900, 600, "Fdf");
-	img->img = mlx_new_image(mlx_ptr, 1920, 1080);
-	img->addr = mlx_get_data_addr(img->img, &img->bits_per_pixel, &img->line_length, &img->endian);
-	/*y = -1;
-	while (++y < 600)
+	img->mul = 10;
+	img->mlx_ptr = mlx_init();
+	img->win_ptr = mlx_new_window(img->mlx_ptr, 900, 600, "Fdf");
+	if (img->win_ptr == NULL)
 	{
-		x = -1;
-		while (++x < 900)
-		{
-			ft_mlx_pixel_put(img, x, y, 0xFFFFFF);
-			write(1, img->addr + (y * img->line_length + x * (img->bits_per_pixel / 8)), 1);
-		}
-	}*/
-	//ft_mlx_pixel_put(img, 100, 100, 0xOORRGGBB);
+		exit(1);
+	}
+	img->img = mlx_new_image(img->mlx_ptr, 1920, 1080);
+	img->addr = mlx_get_data_addr(img->img, &img->bits_per_pixel, &img->line_length, &img->endian);
 	tab = create_map(img, fd);
-	draw_point(img, tab);
-	mlx_put_image_to_window(mlx_ptr, win_ptr, img->img , 0, 0);
-	mlx_key_hook(win_ptr, key_hook, img);
-	mlx_loop(mlx_ptr);
-	
+	img->len = len_map(tab);
+	draw_point(img, img->mul, color);
+	free_tab(tab);
+	mlx_put_image_to_window(img->mlx_ptr, img->win_ptr, img->img , 0, 0);
+	mlx_key_hook(img->win_ptr, key_hook, img);
+	mlx_loop(img->mlx_ptr);
+	exit(0);
 }
 
 
-int main()
+int main(void)
 {
 	int		fd;
 	
 	fd = open("test_maps/42.fdf", 0);
 	create_win(fd);
+	return (1);
 }
