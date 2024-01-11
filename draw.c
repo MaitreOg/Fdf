@@ -6,7 +6,7 @@
 /*   By: smarty <smarty@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/10 16:53:12 by smarty            #+#    #+#             */
-/*   Updated: 2024/01/10 18:06:27 by smarty           ###   ########.fr       */
+/*   Updated: 2024/01/11 21:26:07 by smarty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,6 +114,78 @@ void	draw_line_y(t_data *map, int i, int color, int mul)
 void	draw_line(t_data *map, t_point a, t_point b)
 {
 	t_point	vector;
+	t_point	pix;
+	double	cd;
+	double	dimension;
+	int		i;
+
+	i = 0;
+	a.x *= 40;
+	a.y *= 20;
+	a.z *= 10;
+	b.x *= 40;
+	b.y *= 20;
+	b.z *= 10;
+
+	vector.x = (b.x - a.x);
+	vector.y = (b.y - a.y) - (b.z - a.z);
+	cd = fabs(vector.x) + fabs(vector.y);
+	//printf("x = %f y = %f\n", vector.x, vector.y);
+	//printf("a.x = %f\n", a.x);
+	a.x += 100;
+	a.y += 100;
+	dimension = 0;
+	dimension = (a.y - 100) / 2;
+	while (i < cd)
+	{
+		pix.x = a.x + (vector.x * i) / cd + dimension;
+		pix.y = (a.y - a.z) + (vector.y * i) / cd;
+		//printf("x = %f y = %f\n", pix.x, pix.y);
+		ft_mlx_pixel_put(map, pix.x , pix.y, 0x00FFFFFF);
+		i++;
+	}
+}
+
+void	draw_point(t_data *map, int mul, int color)
+{
+	int i;
+	int len;
+	int offset;
+
+	i = 0;
+	offset = 100;
+	while (i < map->len)
+	{
+		len = len_line(map, i, map->map[i].y, map->map[i].x);
+		//if (map->map[i].z == 0)
+		//	ft_mlx_pixel_put(map, (map->map[i].x * 40 + map->map[i].y * 10 + offset), (map->map[i].y * 20 + offset - (map->map[i].z * 10)), 0x00AA00FF);
+		//else
+		//ft_mlx_pixel_put(map, (map->map[i].x * 40 + map->map[i].y * 10 + offset), (map->map[i].y * 20 + offset - (map->map[i].z * 10)), 0x0000FF55);
+		if (map->map[i].z == 0 && map->map[i + 1].z == 0 && map->map[i + 1].x > map->map[i].x)
+		{
+			
+			draw_line(map, map->map[i], map->map[i + 1]);
+			draw_line_y(map, i, color, mul);
+		}
+		else if (map->map[i].z  != map->map[i + 1].z && map->map[i].x  < map->map[i + 1].x)
+		{
+			draw_line_y(map, i, color, mul);
+			draw_line(map, map->map[i], map->map[i + 1]);
+		}
+		else if (map->map[i].z  - map->map[i + 1].z == 0 && map->map[i].x  < map->map[i + 1].x)
+		{
+			draw_line(map, map->map[i], map->map[i + 1]);
+			draw_line(map, map->map[i], map->map[i + 18]);
+
+			//draw_line_y(map, i, color, mul);
+
+		}
+		i++;
+	}
+}
+/*void	draw_line(t_data *map, t_point a, t_point b)
+{
+	t_point	vector;
 	double	cd;
 	int		i;
 
@@ -158,4 +230,4 @@ void	draw_point(t_data *map, int mul, int color)
 		}
 		i++;
 	}
-}
+}*/
