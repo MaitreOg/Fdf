@@ -6,7 +6,7 @@
 /*   By: smarty <smarty@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/02 17:31:23 by smarty            #+#    #+#             */
-/*   Updated: 2024/01/10 16:58:59 by smarty           ###   ########.fr       */
+/*   Updated: 2024/01/24 22:24:18 by smarty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,6 +87,7 @@ char	***create_map(t_data *map, int fd)
 	i = len_map(tab);
 	//tmp = malloc(sizeof(t_point));
 	map->map = malloc(sizeof(t_point) * i);
+	map->coord_map = malloc(sizeof(t_point) * i);
 	i = 0;
 	while(tab[y])
 	{
@@ -94,30 +95,40 @@ char	***create_map(t_data *map, int fd)
 		while (tab[y][x])
 		{
 			map->map[i].x = x;
+			map->coord_map[i].x = x;
 			map->map[i].y = y;
+			map->coord_map[i].y = y;
 			map->map[i].z = ft_atoi(tab[y][x]);
+			map->coord_map[i].z = map->map[i].z;
+			if (fabs(map->map[i].z) > map->z_max)
+				map->z_max = fabs(map->map[i].z);
 			x++;
 			i++;
 		}
 		y++;
 	}
 	map->nbrline = y - 1;
-	map->lenstruct = i - 1;
+	map->lenstruct = x - 1;
 	return(tab);
 }
 
-/*void	recovery(t_data *map, int mul)
+void	recovery(t_data *map)
 {
 	int i;
+	int y;
 
-	i = 0;
-	while (i < map->len)
+	y = 0;
+	while (y < 1080)
 	{
-		draw_line_y(map, i, 0xFF000000, mul);
-		draw_line_x(map, i, 0xFF000000, mul);
-		i++;
+		i = 0;
+		while (i < 1920)
+		{
+			ft_mlx_pixel_put(map, i, y, 0x00000000);
+			i++;
+		}
+		y++;
 	}
-}*/
+}
 
 void	free_tab(char ***tab)
 {
@@ -142,25 +153,27 @@ void	create_win(int fd)
 {
 	char	***tab;
 	t_data	*img;
-	int		color;
 
-	color = 0x00FFFFFF;
 	img = malloc(sizeof(t_data));
 	img->mul = 10;
 	img->mlx_ptr = mlx_init();
 	img->win_ptr = mlx_new_window(img->mlx_ptr, 900, 600, "Fdf");
 	if (img->win_ptr == NULL)
-	{
 		exit(1);
-	}
+	img->z_max = 0;
+	img->color_mode = 0;
 	img->img = mlx_new_image(img->mlx_ptr, 1920, 1080);
 	img->addr = mlx_get_data_addr(img->img, &img->bits_per_pixel, &img->line_length, &img->endian);
 	tab = create_map(img, fd);
 	img->len = len_map(tab);
-	draw_point(img, img->mul, color);
+	img->mulx = 40;
+	img->muly = 20;
+	img->offsetx = 100;
+	img->offsety = 100;
+	draw_point(img);
 	free_tab(tab);
 	mlx_put_image_to_window(img->mlx_ptr, img->win_ptr, img->img , 0, 0);
-	mlx_key_hook(img->win_ptr, key_hook, img);
+	mlx_hook(img->win_ptr, 2, 1L << 0, &key_hook, img);
 	mlx_loop(img->mlx_ptr);
 	exit(0);
 }

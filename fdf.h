@@ -9,8 +9,6 @@
 # include "get_next_line/get_next_line.h"
 # include "libft/libft.h"
 # include "minilibx-linux/mlx.h"
-//# include <X11/X.h>
-//# include <X11/keysym.h>
 
 typedef struct s_point{
 	double	x;
@@ -28,12 +26,32 @@ typedef struct	s_data {
 	int		lenstruct;
 	int		nbrline;
 	int		endian;
+	double		z_max;
+	int		color_mode;
 	int		mul;
+	int 	mulx;
+	int 	muly;
+	double		corner_x;
+	double		corner_y;
+	double		corner_z;
+	int		offsetx;
+	int		offsety;
 	int		len;
 	t_point	*map;
+	t_point	*coord_map;
 }				t_data;
 
 int	key_hook(int keycode, t_data *img);
-void draw_point(t_data *map, int mul, int color);
+void draw_point(t_data *map);
+void	recovery(t_data *map);
+void	ft_mlx_pixel_put(t_data *data, int x, int y, int color);
+void	apply_corner(t_data *map, int axe, double corner);
+
+#ifdef __linux__
+# include <X11/keysym.h>
+# include <X11/X.h>
+#elif __APPLE__
+# include <ApplicationServices/ApplicationServices.h>
+#endif
 
 #endif

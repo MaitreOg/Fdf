@@ -13,14 +13,16 @@ CC = cc
 
 CFLAGS = -Wall -Wextra -Werror -g
 
-SRCS = fdf.c draw.c key_hook.c get_next_line/get_next_line.c get_next_line/get_next_line_utils.c 
+MLX_FLAGS = -L/usr/X11R6/lib -lX11 -lXext
+
+SRCS = fdf.c  rotate.c draw.c key_hook.c get_next_line/get_next_line.c get_next_line/get_next_line_utils.c 
 
 OBJECTS = $(SRCS:.c=.o)
 
 all: $(NAME)
 
 $(NAME): $(OBJECTS) $(LIBFT_A) $(MLX_A)
-	$(CC) $(CFLAGS) $(OBJECTS) $(LIBFT_A) $(MLX_A) -lX11 -lXext -o $(NAME)
+	$(CC) $(CFLAGS) $(OBJECTS) $(LIBFT_A) $(MLX_A) $(MLX_FLAGS) -o $(NAME)
 $(LIBFT_A): 
 	make -s -C $(LIBFT)
 $(MLX_A): 
